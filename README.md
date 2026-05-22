@@ -1,8 +1,8 @@
 <div align="center">
 
-<!-- BANNER � click opens live dashboard -->
+<!-- BANNER — click opens live dashboard -->
 <a href="https://xchrmas.github.io/Cryptocurrency-Bots/" target="_blank">
-  <img src="./docs/live-badge.svg" alt="Crypto Trading Bots � Live Dashboard" width="100%"/>
+  <img src="./docs/live-badge.svg" alt="Crypto Trading Bots — Live Dashboard" width="100%"/>
 </a>
 
 <br/>
@@ -26,7 +26,7 @@
 
 > **Production-grade algorithmic trading system** built on a clean, fully async architecture.
 > Five independent strategy engines, unified risk framework, real-time WebSocket feeds, Binance Public API integration,
-> and an AI-readable diagnostics stream � all running concurrently on `System.Threading.Channels`.
+> and an AI-readable diagnostics stream — all running concurrently on `System.Threading.Channels`.
 
 </div>
 
@@ -39,77 +39,77 @@
 - [Risk Management](#-risk-management)
 - [Market Scanner](#-market-scanner)
 - [Binance Public API Integration](#-binance-public-api-integration)
-- [Order Execution Engine](#?-order-execution-engine)
+- [Order Execution Engine](#️-order-execution-engine)
 - [AI-Readable Live Stream](#-ai-readable-live-stream-module)
 - [Paper Trading & Kill Switch](#-paper-trading--kill-switch)
 - [Technical Stack](#-technical-stack)
 - [Getting Started](#-getting-started)
-- [Configuration](#?-configuration)
+- [Configuration](#️-configuration)
 - [Project Structure](#-project-structure)
 
 ---
 
-## ?? Architecture
+## 🏗 Architecture
 
 The system is built around a **pipeline-per-strategy** model. Each strategy runs in its own isolated `Channel<MarketEvent>` pipeline, decoupled from the WebSocket ingress layer. The global risk bus sits above all pipelines and can terminate any or all of them via a `CancellationToken` cascade.
 
 ```
-  +-------------------------------------------------------------+
-  �                  Binance WebSocket Feed                      �
-  �      (BookTicker � Kline � AggTrade � Depth � UserData)     �
-  +-------------------------------------------------------------+
-                          �  MarketEvent
-              +-----------?-----------+
-              �   Market Data Router  �  ? normalizes + fans out
-              +----------------------+
-                 �  �  �  �  �
-       +---------?+ �  �  �  +--------------------+
-       � SpotGrid � �  �  +--------------+         �
-       � Pipeline � �  +------+          �         �
-       +----------+ �         �          �         �
-            �  +----?------+  �  +-------?--+  +--?------+
-            �  �Martingale �  �  �  TWAP    �  �TradFi   �
-            �  � Pipeline  �  �  � Pipeline �  �Combo/DCA�
-            �  +-----------+  �  +----------+  +---------+
-            �       �     +---?--+    �            �
-            �       +----?� Risk �?---+?-----------+
-            +------------?� Bus  �
-                          +------+
-                             � ExecutionCommand
-                          +--?--------------+
-                          �  Order Router   �  ? rate-limit aware
-                          �  (REST / WS)    �
-                          +-----------------+
-                             �
-                    +--------?--------+
-                    �  Binance API    �
-                    �  Spot / Futures �
-                    +-----------------+
+  ┌─────────────────────────────────────────────────────────────┐
+  │                  Binance WebSocket Feed                      │
+  │      (BookTicker · Kline · AggTrade · Depth · UserData)     │
+  └───────────────────────┬─────────────────────────────────────┘
+                          │  MarketEvent
+              ┌───────────▼───────────┐
+              │   Market Data Router  │  ← normalizes + fans out
+              └──┬──┬──┬──┬──┬───────┘
+                 │  │  │  │  │
+       ┌─────────▼┐ │  │  │  └────────────────────┐
+       │ SpotGrid │ │  │  └──────────────┐         │
+       │ Pipeline │ │  └──────┐          │         │
+       └────┬─────┘ │         │          │         │
+            │  ┌────▼──────┐  │  ┌───────▼──┐  ┌──▼──────┐
+            │  │Martingale │  │  │  TWAP    │  │TradFi   │
+            │  │ Pipeline  │  │  │ Pipeline │  │Combo/DCA│
+            │  └────┬──────┘  │  └────┬─────┘  └──┬──────┘
+            │       │     ┌───▼──┐    │            │
+            │       └────►│ Risk │◄───┘◄───────────┘
+            └────────────►│ Bus  │
+                          └──┬───┘
+                             │ ExecutionCommand
+                          ┌──▼──────────────┐
+                          │  Order Router   │  ← rate-limit aware
+                          │  (REST / WS)    │
+                          └──┬──────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │  Binance API    │
+                    │  Spot / Futures │
+                    └─────────────────┘
 ```
 
 **Key architectural decisions:**
 
-- **`System.Threading.Channels`** � bounded back-pressure channels prevent memory bloat under market volatility spikes
-- **Zero shared mutable state** � each pipeline owns its state; the risk bus communicates only via immutable messages
-- **`IHostedService` + `BackgroundService`** � full .NET Generic Host lifecycle management with graceful shutdown
-- **MVC per strategy** � `MarketController` ? `StrategyModel` ? `ExecutionView`; testable in isolation
-- **`ValueTask` over `Task`** � allocation-free hot paths in the market data ingestion loop
+- **`System.Threading.Channels`** — bounded back-pressure channels prevent memory bloat under market volatility spikes
+- **Zero shared mutable state** — each pipeline owns its state; the risk bus communicates only via immutable messages
+- **`IHostedService` + `BackgroundService`** — full .NET Generic Host lifecycle management with graceful shutdown
+- **MVC per strategy** — `MarketController` → `StrategyModel` → `ExecutionView`; testable in isolation
+- **`ValueTask` over `Task`** — allocation-free hot paths in the market data ingestion loop
 
 ---
 
-## ?? Trading Strategies
+## 📈 Trading Strategies
 
-### 1 � Spot Grid Bot Pro
+### 1 · Spot Grid Bot Pro
 
 Places a ladder of limit orders above and below a reference price, capturing oscillation profit in range-bound markets.
 
 ```
-Price �  ���� SELL @ 43 200    ? grid level 5
-      �  ���� SELL @ 43 000    ? grid level 4
- -----+----------------------  ? mid price
-      �  ����  BUY @ 42 800    ? grid level 3
-      �  ����  BUY @ 42 600    ? grid level 2
-      �  ����  BUY @ 42 400    ? grid level 1
+Price │  ████ SELL @ 43 200    ← grid level 5
+      │  ████ SELL @ 43 000    ← grid level 4
+ ─────┼──────────────────────  ← mid price
+      │  ████  BUY @ 42 800    ← grid level 3
+      │  ████  BUY @ 42 600    ← grid level 2
+      │  ████  BUY @ 42 400    ← grid level 1
 ```
 
 | Parameter | Default | Description |
@@ -119,26 +119,26 @@ Price �  ���� SELL @ 43 200    ? grid level 5
 | `BaseOrderSize` | dynamic | Scaled by `DynamicPositionSizing` |
 | `RangeRecalcInterval` | 4 h | ATR-based range recalculation |
 
-**Indicators used:** ATR(14) for range detection � EMA(200) for trend bias � VWAP for mid-price anchor
+**Indicators used:** ATR(14) for range detection · EMA(200) for trend bias · VWAP for mid-price anchor
 
 ---
 
-### 2 � Futures Martingale
+### 2 · Futures Martingale
 
 Doubles (or multiplies by a configurable factor) position size after each losing trade, targeting a single recovery candle. Hard limits cap maximum exposure.
 
-> ?? High-risk strategy. Designed for use with the **Global Drawdown Limit** and **BTC Trend Filter** active.
+> ⚠️ High-risk strategy. Designed for use with the **Global Drawdown Limit** and **BTC Trend Filter** active.
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `BaseSize` | 1� | Initial position multiplier |
-| `Multiplier` | 1.8� | Position scale factor on loss |
+| `BaseSize` | 1× | Initial position multiplier |
+| `Multiplier` | 1.8× | Position scale factor on loss |
 | `MaxLevels` | 4 | Hard cap on cascade depth |
 | `ResetOnTP` | true | Resets multiplier after take-profit |
 
 ---
 
-### 3 � TWAP Bot (Time-Weighted Average Price)
+### 3 · TWAP Bot (Time-Weighted Average Price)
 
 Splits a large parent order into equal child slices, executed at regular intervals. Minimises market impact and execution cost for block entries/exits.
 
@@ -152,11 +152,11 @@ await foreach (var slice in _scheduler.SlicesAsync(parentOrder, cancellationToke
 }
 ```
 
-**Features:** Randomised slice timing (�15% jitter) to avoid predictable patterns � VWAP deviation guard pauses execution if price deviates > N% from session VWAP
+**Features:** Randomised slice timing (±15% jitter) to avoid predictable patterns · VWAP deviation guard pauses execution if price deviates > N% from session VWAP
 
 ---
 
-### 4 � DCA (Dollar-Cost Averaging)
+### 4 · DCA (Dollar-Cost Averaging)
 
 Scheduled, price-condition-triggered accumulation. Supports both time-based (`every 4 h`) and dip-triggered (`buy when price drops 3% from last entry`) modes.
 
@@ -168,13 +168,13 @@ Scheduled, price-condition-triggered accumulation. Supports both time-based (`ev
 
 ---
 
-### 5 � TradFi Combo
+### 5 · TradFi Combo
 
 Blends classical institutional techniques: **momentum** (12/26 EMA crossover), **mean-reversion** (Bollinger Band % B), and **carry** (funding rate arbitrage on perpetuals). Weights are dynamically rebalanced every 24 h using a simplified Kelly Criterion.
 
 ---
 
-## ?? Risk Management
+## 🛡 Risk Management
 
 Risk is enforced at two layers: **per-strategy** (soft limits) and **global bus** (hard limits with immediate halt).
 
@@ -183,11 +183,11 @@ Risk is enforced at two layers: **per-strategy** (soft limits) and **global bus*
 Position size is computed per trade using a volatility-adjusted Kelly formula:
 
 ```
-f* = (W � R - L) / R
-size = AccountEquity � f* � VolatilityScalar
+f* = (W · R − L) / R
+size = AccountEquity × f* × VolatilityScalar
 ```
 
-Where `VolatilityScalar = ATR(14)_baseline / ATR(14)_current` � shrinks size in high-volatility regimes automatically.
+Where `VolatilityScalar = ATR(14)_baseline / ATR(14)_current` — shrinks size in high-volatility regimes automatically.
 
 ### Trailing Stop-Loss & Take-Profit
 
@@ -198,9 +198,9 @@ TrailingStop:
   time_lock: 5m             # minimum hold before trailing activates
 
 TakeProfit:
-  tp1: +2.0%  ? close 40%
-  tp2: +4.0%  ? close 35%
-  tp3: +8.0%  ? close 25%   # runner position
+  tp1: +2.0%  → close 40%
+  tp2: +4.0%  → close 35%
+  tp3: +8.0%  → close 25%   # runner position
 ```
 
 ### Global Drawdown Limit
@@ -225,12 +225,12 @@ A macro regime filter: strategies with `RequiresBullMarket: true` are suspended 
 Rejects entry signals on symbols where:
 - 24 h volume < `MinVolumeUsd` threshold
 - Bid/ask spread > `MaxSpreadBps` basis points
-- Order book depth at �0.5% < `MinDepthUsd`
+- Order book depth at ±0.5% < `MinDepthUsd`
 
 ### Volatility Filter
 
 Suppresses trading during abnormal volatility events (e.g. FOMC, CPI releases):
-- `ATR%` > `MaxAtrThreshold` ? pause all entries
+- `ATR%` > `MaxAtrThreshold` → pause all entries
 - Configurable pre/post news blackout windows via `EconomicCalendar` integration
 
 ### Whitelist / Blacklist
@@ -246,7 +246,7 @@ Suppresses trading during abnormal volatility events (e.g. FOMC, CPI releases):
 
 ---
 
-## ?? Market Scanner
+## 🔍 Market Scanner
 
 Scans the full Binance universe on a configurable interval, scoring symbols against a multi-factor ranking model:
 
@@ -262,17 +262,17 @@ Emits `ScanResult` events consumed by each strategy's allocation controller. Str
 
 ---
 
-## ?? Binance Public API Integration
+## 🌐 Binance Public API Integration
 
-The system consumes **Binance Public REST & WebSocket APIs** for real-time market data � no authentication required for read-only feeds. All data is streamed into `System.Threading.Channels` pipelines and processed asynchronously.
+The system consumes **Binance Public REST & WebSocket APIs** for real-time market data — no authentication required for read-only feeds. All data is streamed into `System.Threading.Channels` pipelines and processed asynchronously.
 
 ### REST Endpoints Used
 
 | Endpoint | Data | Update Frequency |
 |----------|------|-----------------|
-| `GET /api/v3/klines` | OHLCV candlestick data (1m ? 1M) | On demand / polling |
+| `GET /api/v3/klines` | OHLCV candlestick data (1m → 1M) | On demand / polling |
 | `GET /api/v3/ticker/24hr` | 24h price, volume, trade count | Every 4 s |
-| `GET /api/v3/depth` | Order book bids & asks (limit 5�1000) | Every 4 s |
+| `GET /api/v3/depth` | Order book bids & asks (limit 5–1000) | Every 4 s |
 | `GET /api/v3/trades` | Recent trades list | On demand |
 | `GET /api/v3/avgPrice` | Current average price | On demand |
 
@@ -312,8 +312,8 @@ await _binanceSocketClient.SpotApi.ExchangeData
 | EMA trend | Kline close | 50 / 200 |
 | MACD | Kline close | 12 / 26 / 9 |
 | ATR | Kline H/L/C | 14 |
-| VWAP | AggTrade price � volume | Session |
-| Bollinger Bands | Kline close | 20, 2s |
+| VWAP | AggTrade price × volume | Session |
+| Bollinger Bands | Kline close | 20, 2σ |
 | ADX | Kline H/L/C | 14 |
 | Funding Rate | REST `/fapi/v1/fundingRate` | 8 h |
 
@@ -349,7 +349,7 @@ public sealed class RateLimitBucket
 
 ---
 
-## ?? Order Execution Engine
+## ⚙️ Order Execution Engine
 
 ### API Rate Limit Manager
 
@@ -366,7 +366,7 @@ public sealed class RateLimitBucket
 
 ### WebSocket Order Updates
 
-Order state is tracked exclusively via `executionReport` user data stream � **no polling**. Provides sub-100 ms fill confirmation latency.
+Order state is tracked exclusively via `executionReport` user data stream — **no polling**. Provides sub-100 ms fill confirmation latency.
 
 ### Time-in-Force Parameters
 
@@ -379,9 +379,9 @@ Order state is tracked exclusively via `executionReport` user data stream � **no
 
 ---
 
-## ?? AI-Readable Live Stream Module
+## 🤖 AI-Readable Live Stream Module
 
-A structured JSON logging module that broadcasts the bot's complete state in real time. Designed for **zero-context diagnostics** � paste the last 20 lines into any AI chat for instant analysis.
+A structured JSON logging module that broadcasts the bot's complete state in real time. Designed for **zero-context diagnostics** — paste the last 20 lines into any AI chat for instant analysis.
 
 ### Stream format
 
@@ -442,10 +442,10 @@ Each line is a self-contained JSON object (NDJSON / JSON Lines):
 ### Diagnostic usage
 
 ```bash
-# Terminal � tail last 20 lines, pretty-print
+# Terminal — tail last 20 lines, pretty-print
 tail -n 20 logs/stream.jsonl | jq .
 
-# Compact � copy-paste to AI chat (single line per event)
+# Compact — copy-paste to AI chat (single line per event)
 tail -n 20 logs/stream.jsonl
 ```
 
@@ -462,18 +462,18 @@ Log.Logger = new LoggerConfiguration()
         formatter: new AiStreamFormatter(),   // custom compact JSON formatter
         rollingInterval: RollingInterval.Hour,
         retainedFileCountLimit: 48,
-        buffered: false)                      // flush every line � no buffering
+        buffered: false)                      // flush every line — no buffering
     .WriteTo.Spectre()                        // Spectre.Console live dashboard
     .CreateLogger();
 ```
 
 ---
 
-## ?? Paper Trading & Kill Switch
+## 🧪 Paper Trading & Kill Switch
 
 ### Paper Trading (Simulation Mode)
 
-Full simulation with realistic fill modelling � no live orders placed.
+Full simulation with realistic fill modelling — no live orders placed.
 
 ```json
 "Simulation": {
@@ -485,7 +485,7 @@ Full simulation with realistic fill modelling � no live orders placed.
 }
 ```
 
-Paper trading uses the **same code paths** as live mode. The only difference is `IOrderExecutor` is bound to `SimulatedOrderExecutor` via DI. Switch to live with a single config flag � no code changes.
+Paper trading uses the **same code paths** as live mode. The only difference is `IOrderExecutor` is bound to `SimulatedOrderExecutor` via DI. Switch to live with a single config flag — no code changes.
 
 ### Kill Switch (Emergency Stop)
 
@@ -505,7 +505,7 @@ On activation:
 5. Sends alert via configured notifier (Telegram / email)
 
 ```csharp
-// Kill switch is a first-class citizen � injected everywhere
+// Kill switch is a first-class citizen — injected everywhere
 public interface IKillSwitch
 {
     CancellationToken Token { get; }
@@ -516,7 +516,7 @@ public interface IKillSwitch
 
 ---
 
-## ?? Technical Stack
+## 🛠 Technical Stack
 
 ### Core Runtime
 
@@ -536,11 +536,11 @@ public interface IKillSwitch
 | `CryptoExchange.Net` | latest | Base abstractions (shared with Binance.Net) |
 | `WebSocket4Net` | latest | Low-level WS transport fallback |
 
-### Binance Public API � Data Consumed
+### Binance Public API — Data Consumed
 
 | Feed | Type | Description |
 |------|------|-------------|
-| `/api/v3/klines` | REST | OHLCV candles, all intervals 1m ? 1M |
+| `/api/v3/klines` | REST | OHLCV candles, all intervals 1m → 1M |
 | `/api/v3/ticker/24hr` | REST | 24h price stats, volume, trade count |
 | `/api/v3/depth` | REST | Order book snapshot, up to 1000 levels |
 | `@kline_{interval}` | WebSocket | Live candlestick stream per symbol |
@@ -596,7 +596,7 @@ public interface IKillSwitch
 | `Serilog` | Structured logging, multiple sinks |
 | `Serilog.Sinks.File` | Rolling NDJSON file output (hourly rotation) |
 | `Spectre.Console` | Real-time terminal dashboard, live tables, progress |
-| Custom `AiStreamFormatter` | Compact JSON Lines � AI-readable diagnostics stream |
+| Custom `AiStreamFormatter` | Compact JSON Lines — AI-readable diagnostics stream |
 
 ### Resilience & Infrastructure
 
@@ -619,7 +619,7 @@ public interface IKillSwitch
 
 ---
 
-## ?? Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 
@@ -640,7 +640,7 @@ dotnet build -c Release
 
 ```bash
 cp appsettings.example.json appsettings.json
-# Edit appsettings.json � see Configuration section
+# Edit appsettings.json — see Configuration section
 ```
 
 ### Run in paper trading mode (safe default)
@@ -657,7 +657,7 @@ dotnet run -- --strategy SpotGrid --symbol BTCUSDT --paper
 
 ---
 
-## ?? Configuration
+## ⚙️ Configuration
 
 `appsettings.json` is the single source of truth. All sections support hot-reload via `IOptionsMonitor<T>`.
 
@@ -708,32 +708,32 @@ dotnet run -- --strategy SpotGrid --symbol BTCUSDT --paper
 
 ---
 
-## ?? Project Structure
+## 📁 Project Structure
 
 ```
 Cryptocurrency-Bots/
-+-- src/
-�   +-- CryptoBots/
-�       +-- Core/
-�       �   +-- Channels/          # MarketDataRouter, pipeline infrastructure
-�       �   +-- RiskBus/           # GlobalRisk, KillSwitch, DrawdownMonitor
-�       �   +-- Execution/         # OrderRouter, RateLimitBucket, TIF logic
-�       �   +-- Indicators/        # IndicatorCache<T>, custom composites
-�       +-- Strategies/
-�       �   +-- SpotGrid/          # Controller � Model � State
-�       �   +-- Martingale/
-�       �   +-- Twap/
-�       �   +-- Dca/
-�       �   +-- TradFiCombo/
-�       +-- Scanner/               # MarketScanner, ScoringEngine
-�       +-- Filters/               # BtcTrend, Volume, Volatility, Whitelist
-�       +-- Simulation/            # SimulatedOrderExecutor, FillModel
-�       +-- Logging/               # AiStreamFormatter, SpectreConsoleSink
-�       +-- Program.cs             # Host builder, DI composition root
-+-- tests/
-    +-- CryptoBots.Unit/
-    +-- CryptoBots.Integration/    # WireMock Binance server
-    +-- CryptoBots.Benchmarks/     # BenchmarkDotNet hot paths
+├── src/
+│   └── CryptoBots/
+│       ├── Core/
+│       │   ├── Channels/          # MarketDataRouter, pipeline infrastructure
+│       │   ├── RiskBus/           # GlobalRisk, KillSwitch, DrawdownMonitor
+│       │   ├── Execution/         # OrderRouter, RateLimitBucket, TIF logic
+│       │   └── Indicators/        # IndicatorCache<T>, custom composites
+│       ├── Strategies/
+│       │   ├── SpotGrid/          # Controller · Model · State
+│       │   ├── Martingale/
+│       │   ├── Twap/
+│       │   ├── Dca/
+│       │   └── TradFiCombo/
+│       ├── Scanner/               # MarketScanner, ScoringEngine
+│       ├── Filters/               # BtcTrend, Volume, Volatility, Whitelist
+│       ├── Simulation/            # SimulatedOrderExecutor, FillModel
+│       ├── Logging/               # AiStreamFormatter, SpectreConsoleSink
+│       └── Program.cs             # Host builder, DI composition root
+└── tests/
+    ├── CryptoBots.Unit/
+    ├── CryptoBots.Integration/    # WireMock Binance server
+    └── CryptoBots.Benchmarks/     # BenchmarkDotNet hot paths
 ```
 
 ---
