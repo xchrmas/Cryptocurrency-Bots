@@ -5,28 +5,37 @@
   <img src="./docs/live-badge.svg" alt="Crypto Trading Bots — Live Dashboard" width="100%"/>
 </a>
 
-<br/>
+<br/><br/>
 
+<!-- Runtime & Language -->
 [![.NET 8](https://img.shields.io/badge/.NET_8-512BD4?style=flat-square&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com)
 [![C# 12](https://img.shields.io/badge/C%23_12-239120?style=flat-square&logo=csharp&logoColor=white)](https://learn.microsoft.com/en-us/dotnet/csharp/)
+
+<!-- Core Libraries -->
 [![Binance.Net](https://img.shields.io/badge/Binance.Net-F3BA2F?style=flat-square&logo=binance&logoColor=000)](https://github.com/JKorf/Binance.Net)
 [![Serilog](https://img.shields.io/badge/Serilog-1A73E8?style=flat-square&logo=dotnet&logoColor=white)](https://serilog.net)
 [![Spectre.Console](https://img.shields.io/badge/Spectre.Console-0078D4?style=flat-square&logo=powershell&logoColor=white)](https://spectreconsole.net)
 [![Skender](https://img.shields.io/badge/Skender.Stock.Indicators-00d464?style=flat-square&logo=dotnet&logoColor=white)](https://github.com/DaveSkender/Stock.Indicators)
 [![Polly](https://img.shields.io/badge/Polly_8.x-E84A5F?style=flat-square&logo=dotnet&logoColor=white)](https://github.com/App-vNext/Polly)
 [![MathNet](https://img.shields.io/badge/MathNet.Numerics-00A4EF?style=flat-square&logo=dotnet&logoColor=white)](https://numerics.mathdotnet.com)
+
+<!-- Testing -->
 [![WireMock](https://img.shields.io/badge/WireMock.Net-6C3483?style=flat-square&logo=dotnet&logoColor=white)](https://github.com/WireMock-Net/WireMock.Net)
 [![xUnit](https://img.shields.io/badge/xUnit-5C2D91?style=flat-square&logo=dotnet&logoColor=white)](https://xunit.net)
 [![BenchmarkDotNet](https://img.shields.io/badge/BenchmarkDotNet-FF6B35?style=flat-square&logo=dotnet&logoColor=white)](https://benchmarkdotnet.org)
 [![FluentAssertions](https://img.shields.io/badge/FluentAssertions-00B4D8?style=flat-square&logo=dotnet&logoColor=white)](https://fluentassertions.com)
+
+<!-- Meta -->
 [![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-00d464?style=flat-square)](CONTRIBUTING.md)
 
 <br/>
 
-> **Production-grade algorithmic trading system** built on a clean, fully async architecture.
-> Five independent strategy engines, unified risk framework, real-time WebSocket feeds, Binance Public API integration,
+> **Production-grade algorithmic trading system** built on a clean, fully async architecture.  
+> Five independent strategy engines, unified risk framework, real-time WebSocket feeds, Binance Public API integration,  
 > and an AI-readable diagnostics stream — all running concurrently on `System.Threading.Channels`.
+
+<br/>
 
 </div>
 
@@ -34,18 +43,18 @@
 
 ## Table of Contents
 
-- [Architecture](#-architecture)
-- [Trading Strategies](#-trading-strategies)
-- [Risk Management](#-risk-management)
-- [Market Scanner](#-market-scanner)
-- [Binance Public API Integration](#-binance-public-api-integration)
-- [Order Execution Engine](#️-order-execution-engine)
-- [AI-Readable Live Stream](#-ai-readable-live-stream-module)
-- [Paper Trading & Kill Switch](#-paper-trading--kill-switch)
-- [Technical Stack](#-technical-stack)
-- [Getting Started](#-getting-started)
-- [Configuration](#️-configuration)
-- [Project Structure](#-project-structure)
+- [🏗 Architecture](#-architecture)
+- [📈 Trading Strategies](#-trading-strategies)
+- [🛡 Risk Management](#-risk-management)
+- [🔍 Market Scanner](#-market-scanner)
+- [🌐 Binance Public API Integration](#-binance-public-api-integration)
+- [⚙️ Order Execution Engine](#️-order-execution-engine)
+- [🤖 AI-Readable Live Stream](#-ai-readable-live-stream-module)
+- [🧪 Paper Trading & Kill Switch](#-paper-trading--kill-switch)
+- [🛠 Technical Stack](#-technical-stack)
+- [🚀 Getting Started](#-getting-started)
+- [⚙️ Configuration](#️-configuration)
+- [📁 Project Structure](#-project-structure)
 
 ---
 
@@ -112,12 +121,12 @@ Price │  ████ SELL @ 43 200    ← grid level 5
       │  ████  BUY @ 42 400    ← grid level 1
 ```
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `GridLevels` | 10 | Number of buy/sell levels |
-| `GridSpacingPct` | 0.5% | Distance between levels |
-| `BaseOrderSize` | dynamic | Scaled by `DynamicPositionSizing` |
-| `RangeRecalcInterval` | 4 h | ATR-based range recalculation |
+| Parameter              | Default  | Description                          |
+|------------------------|----------|--------------------------------------|
+| `GridLevels`           | 10       | Number of buy/sell levels            |
+| `GridSpacingPct`       | 0.5%     | Distance between levels              |
+| `BaseOrderSize`        | dynamic  | Scaled by `DynamicPositionSizing`    |
+| `RangeRecalcInterval`  | 4 h      | ATR-based range recalculation        |
 
 **Indicators used:** ATR(14) for range detection · EMA(200) for trend bias · VWAP for mid-price anchor
 
@@ -129,12 +138,12 @@ Doubles (or multiplies by a configurable factor) position size after each losing
 
 > ⚠️ High-risk strategy. Designed for use with the **Global Drawdown Limit** and **BTC Trend Filter** active.
 
-| Parameter | Default | Description |
-|-----------|---------|-------------|
-| `BaseSize` | 1× | Initial position multiplier |
-| `Multiplier` | 1.8× | Position scale factor on loss |
-| `MaxLevels` | 4 | Hard cap on cascade depth |
-| `ResetOnTP` | true | Resets multiplier after take-profit |
+| Parameter     | Default | Description                          |
+|---------------|---------|--------------------------------------|
+| `BaseSize`    | 1×      | Initial position multiplier          |
+| `Multiplier`  | 1.8×    | Position scale factor on loss        |
+| `MaxLevels`   | 4       | Hard cap on cascade depth            |
+| `ResetOnTP`   | true    | Resets multiplier after take-profit  |
 
 ---
 
@@ -160,11 +169,11 @@ await foreach (var slice in _scheduler.SlicesAsync(parentOrder, cancellationToke
 
 Scheduled, price-condition-triggered accumulation. Supports both time-based (`every 4 h`) and dip-triggered (`buy when price drops 3% from last entry`) modes.
 
-| Mode | Trigger | Use case |
-|------|---------|----------|
-| `TimeBased` | Cron schedule | Passive accumulation |
-| `DipBased` | Price decline % | Entry on weakness |
-| `Hybrid` | Time + dip filter | Best of both |
+| Mode         | Trigger          | Use case               |
+|--------------|------------------|------------------------|
+| `TimeBased`  | Cron schedule    | Passive accumulation   |
+| `DipBased`   | Price decline %  | Entry on weakness      |
+| `Hybrid`     | Time + dip filter | Best of both          |
 
 ---
 
@@ -223,6 +232,7 @@ A macro regime filter: strategies with `RequiresBullMarket: true` are suspended 
 ### Volume & Liquidity Filter
 
 Rejects entry signals on symbols where:
+
 - 24 h volume < `MinVolumeUsd` threshold
 - Bid/ask spread > `MaxSpreadBps` basis points
 - Order book depth at ±0.5% < `MinDepthUsd`
@@ -230,6 +240,7 @@ Rejects entry signals on symbols where:
 ### Volatility Filter
 
 Suppresses trading during abnormal volatility events (e.g. FOMC, CPI releases):
+
 - `ATR%` > `MaxAtrThreshold` → pause all entries
 - Configurable pre/post news blackout windows via `EconomicCalendar` integration
 
@@ -250,13 +261,13 @@ Suppresses trading during abnormal volatility events (e.g. FOMC, CPI releases):
 
 Scans the full Binance universe on a configurable interval, scoring symbols against a multi-factor ranking model:
 
-| Factor | Weight | Signal |
-|--------|--------|--------|
-| Volume surge (vs 20-day avg) | 30% | Momentum confirmation |
-| Volatility regime (ATR%) | 25% | Strategy fit score |
-| Spread tightness | 20% | Execution cost |
-| Trend strength (ADX) | 15% | Directional clarity |
-| Funding rate (futures) | 10% | Carry signal |
+| Factor                           | Weight | Signal                  |
+|----------------------------------|--------|-------------------------|
+| Volume surge (vs 20-day avg)     | 30%    | Momentum confirmation   |
+| Volatility regime (ATR%)         | 25%    | Strategy fit score      |
+| Spread tightness                 | 20%    | Execution cost          |
+| Trend strength (ADX)             | 15%    | Directional clarity     |
+| Funding rate (futures)           | 10%    | Carry signal            |
 
 Emits `ScanResult` events consumed by each strategy's allocation controller. Strategies self-select symbols above their minimum score threshold.
 
@@ -268,13 +279,13 @@ The system consumes **Binance Public REST & WebSocket APIs** for real-time marke
 
 ### REST Endpoints Used
 
-| Endpoint | Data | Update Frequency |
-|----------|------|-----------------|
-| `GET /api/v3/klines` | OHLCV candlestick data (1m → 1M) | On demand / polling |
-| `GET /api/v3/ticker/24hr` | 24h price, volume, trade count | Every 4 s |
-| `GET /api/v3/depth` | Order book bids & asks (limit 5–1000) | Every 4 s |
-| `GET /api/v3/trades` | Recent trades list | On demand |
-| `GET /api/v3/avgPrice` | Current average price | On demand |
+| Endpoint                    | Data                                          | Update Frequency    |
+|-----------------------------|-----------------------------------------------|---------------------|
+| `GET /api/v3/klines`        | OHLCV candlestick data (1m → 1M)             | On demand / polling |
+| `GET /api/v3/ticker/24hr`   | 24h price, volume, trade count                | Every 4 s           |
+| `GET /api/v3/depth`         | Order book bids & asks (limit 5–1000)        | Every 4 s           |
+| `GET /api/v3/trades`        | Recent trades list                            | On demand           |
+| `GET /api/v3/avgPrice`      | Current average price                         | On demand           |
 
 ### WebSocket Streams
 
@@ -305,17 +316,17 @@ await _binanceSocketClient.SpotApi.ExchangeData
 
 ### Indicators Computed from Live Data
 
-| Indicator | Source stream | Period |
-|-----------|--------------|--------|
-| RSI | Kline close | 14 |
-| EMA fast / slow | Kline close | 12 / 26 |
-| EMA trend | Kline close | 50 / 200 |
-| MACD | Kline close | 12 / 26 / 9 |
-| ATR | Kline H/L/C | 14 |
-| VWAP | AggTrade price × volume | Session |
-| Bollinger Bands | Kline close | 20, 2σ |
-| ADX | Kline H/L/C | 14 |
-| Funding Rate | REST `/fapi/v1/fundingRate` | 8 h |
+| Indicator          | Source stream                    | Period      |
+|--------------------|----------------------------------|-------------|
+| RSI                | Kline close                      | 14          |
+| EMA fast / slow    | Kline close                      | 12 / 26     |
+| EMA trend          | Kline close                      | 50 / 200    |
+| MACD               | Kline close                      | 12 / 26 / 9 |
+| ATR                | Kline H/L/C                      | 14          |
+| VWAP               | AggTrade price × volume          | Session     |
+| Bollinger Bands    | Kline close                      | 20, 2σ      |
+| ADX                | Kline H/L/C                      | 14          |
+| Funding Rate       | REST `/fapi/v1/fundingRate`      | 8 h         |
 
 ### Rate Limit Compliance
 
@@ -370,11 +381,11 @@ Order state is tracked exclusively via `executionReport` user data stream — **
 
 ### Time-in-Force Parameters
 
-| TIF | Use case |
-|-----|----------|
-| `GTC` | Grid bot limit orders |
-| `IOC` | TWAP slice execution |
-| `FOK` | Martingale recovery entries |
+| TIF   | Use case                               |
+|-------|----------------------------------------|
+| `GTC` | Grid bot limit orders                  |
+| `IOC` | TWAP slice execution                   |
+| `FOK` | Martingale recovery entries            |
 | `GTX` | Post-only maker orders (fee optimisation) |
 
 ---
@@ -498,6 +509,7 @@ Three trigger mechanisms:
 ```
 
 On activation:
+
 1. Cancels all strategy `CancellationToken`s simultaneously
 2. Cancels all open limit orders via Binance REST (with retry)
 3. Optionally closes positions at market (configurable per strategy)
@@ -520,102 +532,102 @@ public interface IKillSwitch
 
 ### Core Runtime
 
-| Technology | Version | Role |
-|-----------|---------|------|
-| .NET | 8.0 | Runtime & async model |
-| C# | 12.0 | Language |
-| `System.Threading.Channels` | built-in | Back-pressure pipeline |
-| `IHostedService` / `BackgroundService` | built-in | Lifecycle management |
-| `ValueTask` | built-in | Allocation-free hot paths |
+| Technology                             | Version   | Role                         |
+|----------------------------------------|-----------|------------------------------|
+| .NET                                   | 8.0       | Runtime & async model        |
+| C#                                     | 12.0      | Language                     |
+| `System.Threading.Channels`           | built-in  | Back-pressure pipeline       |
+| `IHostedService` / `BackgroundService` | built-in  | Lifecycle management         |
+| `ValueTask`                            | built-in  | Allocation-free hot paths    |
 
 ### Market Data & Exchange
 
-| Library | Version | Purpose |
-|---------|---------|---------|
-| `Binance.Net` | 10.x | REST + WebSocket client, full Spot & Futures API |
-| `CryptoExchange.Net` | latest | Base abstractions (shared with Binance.Net) |
-| `WebSocket4Net` | latest | Low-level WS transport fallback |
+| Library              | Version | Purpose                                           |
+|----------------------|---------|---------------------------------------------------|
+| `Binance.Net`        | 10.x    | REST + WebSocket client, full Spot & Futures API  |
+| `CryptoExchange.Net` | latest  | Base abstractions (shared with Binance.Net)       |
+| `WebSocket4Net`      | latest  | Low-level WS transport fallback                   |
 
 ### Binance Public API — Data Consumed
 
-| Feed | Type | Description |
-|------|------|-------------|
-| `/api/v3/klines` | REST | OHLCV candles, all intervals 1m → 1M |
-| `/api/v3/ticker/24hr` | REST | 24h price stats, volume, trade count |
-| `/api/v3/depth` | REST | Order book snapshot, up to 1000 levels |
-| `@kline_{interval}` | WebSocket | Live candlestick stream per symbol |
-| `@depth20@100ms` | WebSocket | Order book updates every 100 ms |
-| `@aggTrade` | WebSocket | Aggregated trade stream (sub-ms latency) |
-| `@bookTicker` | WebSocket | Best bid/ask real-time |
-| `/fapi/v1/fundingRate` | REST | Perpetual futures funding rate |
+| Feed                        | Type      | Description                                    |
+|-----------------------------|-----------|------------------------------------------------|
+| `/api/v3/klines`            | REST      | OHLCV candles, all intervals 1m → 1M           |
+| `/api/v3/ticker/24hr`       | REST      | 24h price stats, volume, trade count           |
+| `/api/v3/depth`             | REST      | Order book snapshot, up to 1000 levels         |
+| `@kline_{interval}`         | WebSocket | Live candlestick stream per symbol             |
+| `@depth20@100ms`            | WebSocket | Order book updates every 100 ms                |
+| `@aggTrade`                 | WebSocket | Aggregated trade stream (sub-ms latency)       |
+| `@bookTicker`               | WebSocket | Best bid/ask real-time                         |
+| `/fapi/v1/fundingRate`      | REST      | Perpetual futures funding rate                 |
 
 ### Technical Indicators & Quant
 
-| Library | Purpose |
-|---------|---------|
-| `Skender.Stock.Indicators` | 130+ indicators: ATR, EMA, RSI, VWAP, BB, ADX, MACD, Stoch, CCI... |
-| `MathNet.Numerics` | Kelly criterion, correlation matrices, statistical functions |
-| Custom `IndicatorCache<T>` | Lock-free rolling buffer, O(1) append, zero allocation |
+| Library                      | Purpose                                                           |
+|------------------------------|-------------------------------------------------------------------|
+| `Skender.Stock.Indicators`   | 130+ indicators: ATR, EMA, RSI, VWAP, BB, ADX, MACD, Stoch, CCI... |
+| `MathNet.Numerics`           | Kelly criterion, correlation matrices, statistical functions      |
+| Custom `IndicatorCache<T>`   | Lock-free rolling buffer, O(1) append, zero allocation            |
 
 ### Strategy Logic
 
-| Component | Pattern | Details |
-|-----------|---------|---------|
-| `SpotGridController` | MVC | Grid level management, order ladder |
-| `MartingaleController` | MVC | Position sizing cascade, level tracking |
-| `TwapScheduler` | Pipeline | Slice execution with jitter, VWAP guard |
-| `DcaAccumulator` | MVC | Cron + dip-trigger hybrid engine |
-| `TradFiComboEngine` | MVC | Kelly-weighted multi-factor signal blend |
+| Component               | Pattern   | Details                                         |
+|-------------------------|-----------|-------------------------------------------------|
+| `SpotGridController`    | MVC       | Grid level management, order ladder             |
+| `MartingaleController`  | MVC       | Position sizing cascade, level tracking         |
+| `TwapScheduler`         | Pipeline  | Slice execution with jitter, VWAP guard         |
+| `DcaAccumulator`        | MVC       | Cron + dip-trigger hybrid engine                |
+| `TradFiComboEngine`     | MVC       | Kelly-weighted multi-factor signal blend        |
 
 ### Order Execution
 
-| Component | Purpose |
-|-----------|---------|
-| `OrderRouter` | Smart routing between REST and WebSocket |
-| `RateLimitBucket` | Token-bucket per endpoint weight class |
+| Component                | Purpose                                          |
+|--------------------------|--------------------------------------------------|
+| `OrderRouter`            | Smart routing between REST and WebSocket         |
+| `RateLimitBucket`        | Token-bucket per endpoint weight class           |
 | `SimulatedOrderExecutor` | Paper trading with slippage & partial fill model |
-| TIF: `GTC / IOC / FOK / GTX` | Per-strategy order type selection |
+| TIF: `GTC / IOC / FOK / GTX` | Per-strategy order type selection           |
 
 ### Risk Management
 
-| Component | Purpose |
-|-----------|---------|
-| `GlobalRiskBus` | Immutable message bus, CancellationToken cascade |
-| `DrawdownMonitor` | Real-time equity peak tracking, halt trigger |
-| `DynamicPositionSizer` | ATR-adjusted Kelly fraction per trade |
-| `TrailingStopEngine` | Multi-level TP + activation-based trailing SL |
-| `BtcTrendFilter` | EMA(200) daily macro regime gate |
-| `VolatilityFilter` | ATR% threshold + economic calendar blackouts |
-| `VolumeFilter` | 24h volume, spread, order book depth validation |
-| `SymbolWhitelist` | Allow/deny list with market cap rank gate |
+| Component               | Purpose                                               |
+|-------------------------|-------------------------------------------------------|
+| `GlobalRiskBus`         | Immutable message bus, CancellationToken cascade      |
+| `DrawdownMonitor`       | Real-time equity peak tracking, halt trigger          |
+| `DynamicPositionSizer`  | ATR-adjusted Kelly fraction per trade                 |
+| `TrailingStopEngine`    | Multi-level TP + activation-based trailing SL         |
+| `BtcTrendFilter`        | EMA(200) daily macro regime gate                      |
+| `VolatilityFilter`      | ATR% threshold + economic calendar blackouts          |
+| `VolumeFilter`          | 24h volume, spread, order book depth validation       |
+| `SymbolWhitelist`       | Allow/deny list with market cap rank gate             |
 
 ### Observability
 
-| Library | Purpose |
-|---------|---------|
-| `Serilog` | Structured logging, multiple sinks |
-| `Serilog.Sinks.File` | Rolling NDJSON file output (hourly rotation) |
-| `Spectre.Console` | Real-time terminal dashboard, live tables, progress |
+| Library                  | Purpose                                               |
+|--------------------------|-------------------------------------------------------|
+| `Serilog`                | Structured logging, multiple sinks                    |
+| `Serilog.Sinks.File`     | Rolling NDJSON file output (hourly rotation)          |
+| `Spectre.Console`        | Real-time terminal dashboard, live tables, progress   |
 | Custom `AiStreamFormatter` | Compact JSON Lines — AI-readable diagnostics stream |
 
 ### Resilience & Infrastructure
 
-| Library | Purpose |
-|---------|---------|
-| `Polly` 8.x | Retry, circuit-breaker, timeout, rate-limit policies |
-| `Microsoft.Extensions.Options` | Strongly-typed config with hot-reload via `IOptionsMonitor<T>` |
-| `Microsoft.Extensions.Hosting` | Generic Host, DI container, configuration pipeline |
-| `Microsoft.Extensions.Logging` | Logging abstractions, sink integration |
+| Library                          | Purpose                                                         |
+|----------------------------------|-----------------------------------------------------------------|
+| `Polly` 8.x                      | Retry, circuit-breaker, timeout, rate-limit policies            |
+| `Microsoft.Extensions.Options`   | Strongly-typed config with hot-reload via `IOptionsMonitor<T>`  |
+| `Microsoft.Extensions.Hosting`   | Generic Host, DI container, configuration pipeline             |
+| `Microsoft.Extensions.Logging`   | Logging abstractions, sink integration                          |
 
 ### Testing & Benchmarking
 
-| Library | Purpose |
-|---------|---------|
-| `xUnit` | Test framework |
-| `Moq` | Strategy / executor / feed mocking |
-| `FluentAssertions` | Readable, expressive test assertions |
-| `WireMock.Net` | Full Binance REST API mock server |
-| `BenchmarkDotNet` | Hot path performance profiling, memory diagnostics |
+| Library              | Purpose                                          |
+|----------------------|--------------------------------------------------|
+| `xUnit`              | Test framework                                   |
+| `Moq`                | Strategy / executor / feed mocking               |
+| `FluentAssertions`   | Readable, expressive test assertions             |
+| `WireMock.Net`       | Full Binance REST API mock server                |
+| `BenchmarkDotNet`    | Hot path performance profiling, memory diagnostics |
 
 ---
 
@@ -737,5 +749,3 @@ Cryptocurrency-Bots/
 ```
 
 ---
-
-</div>
