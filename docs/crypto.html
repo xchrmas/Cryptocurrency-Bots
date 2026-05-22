@@ -15,7 +15,7 @@
 }
 body{background:#040608;font-family:'JetBrains Mono',monospace;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
 
-.banner{
+.banner{cursor:pointer;
   width:780px;position:relative;background:var(--bg);
   border:1px solid var(--border);overflow:hidden
 }
@@ -141,7 +141,7 @@ body{background:#040608;font-family:'JetBrains Mono',monospace;display:flex;alig
 </style>
 </head>
 <body>
-<div class="banner">
+<div class="banner" onclick="window.open('https://github.com/xchrmas/Cryptocurrency-Bots','_blank')">
   <canvas id="matrix"></canvas>
   <div class="scan"></div>
   <div class="scanline"></div>
